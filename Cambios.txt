@@ -1,0 +1,150 @@
+confirm-code.dto.ts:
+import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
+
+export class ConfirmCodeDto {
+  @IsEmail()
+  @IsNotEmpty()
+  email: string; // Correo electrónico del usuario a confirmar
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(4, 4) // Validación de longitud exacta para un código de 4 dígitos
+  code: string; // Código de confirmación de 4 dígitos
+}
+
+
+
+confirm-code.controller.ts:
+/* eslint-disable */
+import { Controller, Post, Body } from '@nestjs/common';
+import { ConfirmCodeService } from './confirm-code.service';
+import { ConfirmCodeDto } from './dto/confirm-code.dto';
+
+@Controller('confirm_code')
+export class ConfirmCodeController {
+  constructor(private readonly confirmCodeService: ConfirmCodeService) {}
+
+  @Post()
+  confirmCode(@Body() confirmCodeDto: ConfirmCodeDto) {
+    return this.confirmCodeService.confirmCode(confirmCodeDto);
+  }
+}
+
+
+confirm-code.module.ts:
+/* eslint-disable */
+import { Module } from '@nestjs/common';
+import { ConfirmCodeService } from './confirm-code.service';
+import { ConfirmCodeController } from './confirm-code.controller';
+import { PrismaService } from 'src/prisma.service';
+import { GlobalFunctions } from 'src/common/functions/global-function';
+import { JwtService } from '@nestjs/jwt';
+
+@Module({
+  controllers: [ConfirmCodeController],
+  providers: [ConfirmCodeService, PrismaService, GlobalFunctions, JwtService],
+})
+export class ConfirmCodeModule {}
+
+confirm-code.service.ts:
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service'; // Servicio de Prisma para manejar la base de datos
+import { ConfirmCodeDto } from './dto/confirm-code.dto';
+
+@Injectable()
+export class ConfirmCodeService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async confirmCode(confirmCodeDto: ConfirmCodeDto): Promise<string> {
+    const { email, code } = confirmCodeDto;
+
+    // Busca al usuario por email y código
+    const user = await this.prisma.user.findFirst({
+      where: { email, code },
+    });
+
+    // Si no se encuentra al usuario, lanza una excepción
+    if (!user) {
+      throw new NotFoundException('Verifica la información enviada.');
+    }
+
+    // Si el usuario ya está confirmado
+    if (user.isEmail === 0) {
+      throw new BadRequestException('El usuario ya está confirmado.');
+    }
+
+    // Actualiza el estado del usuario a "confirmado"
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { isEmail: 0 },
+    });
+
+    return 'Confirmación satisfactoria';
+  }
+}
+
+
+
+register.service.ts: cambios para generar el codigo aleatorio
+async registerUser(createRegisterDto: CreateRegisterDto) {
+  try {
+    this.resp.data = {};
+    this.resp.error = false;
+    this.resp.statusCode = 200;
+
+    // Validar si el usuario ya existe
+    let { validation, userId } = await this.validateExistUser(
+      createRegisterDto.document,
+    );
+    console.log('validation', createRegisterDto);
+
+    if (validation == 1) {
+      this.resp.statusCode = 400;
+      this.resp.message = `Usuario con documento ${createRegisterDto.document} existente`;
+      this.resp.error = true;
+      this.resp.data = {};
+      return this.resp;
+    } else {
+      console.log('entro aca');
+
+      // Generar código aleatorio de 4 dígitos
+      const randomCode = Math.floor(1000 + Math.random() * 9000); // Genera un número entre 1000 y 9999
+
+      // Crear el usuario
+      const dataCreated = await this.prisma.user.create({
+        data: {
+          fullname: createRegisterDto.fullname,
+          document: createRegisterDto.document,
+          password: bcrypt.hashSync(createRegisterDto.password, 10),
+          email: createRegisterDto.email,
+          flagMsg: createRegisterDto.flagMsg,
+          isValidateEmail: createRegisterDto.isValidateEmail,
+          updated_at: null,
+          isActive: createRegisterDto.isActive,
+          isAccessWeb: createRegisterDto.isAccessWeb,
+          roleId: createRegisterDto.roleId,
+          code: randomCode, // Almacenar el código generado en la base de datos
+        },
+      });
+
+      // Asignar proyectos si existen
+      if (createRegisterDto.projects.length > 0) {
+        const obj: any = {
+          usersId: [dataCreated.id],
+          groupsId: createRegisterDto.projects,
+        };
+        await this.assingProjects(obj);
+      }
+
+      this.resp.message = 'Usuario Creado';
+      this.resp.data = { ...dataCreated, code: randomCode }; // Devolver el código generado en la respuesta
+    }
+  } catch (error) {
+    console.log(error);
+    this.resp.statusCode = 400;
+    this.resp.message = error;
+    this.resp.data = {};
+  }
+
+  return this.resp;
+}
