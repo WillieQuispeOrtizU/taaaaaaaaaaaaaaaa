@@ -1,0 +1,71 @@
+register.service.ts:
+
+linea47
+        // Validaciones manuales del campo email
+        if (!createRegisterDto.email) {
+            this.resp.statusCode = 400;
+            this.resp.message = 'El correo es obligatorio';
+            this.resp.error = true;
+            return this.resp;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Expresión regular para validar correos
+        if (!emailRegex.test(createRegisterDto.email)) {
+            this.resp.statusCode = 400;
+            this.resp.message = 'Escriba un correo válido';
+            this.resp.error = true;
+            return this.resp;
+        }
+
+
+
+version.service.ts:
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service';
+
+@Injectable()
+export class VersionService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async getVersion() {
+    // Obtiene el registro más reciente de la tabla app_versiones
+    const version = await this.prisma.app_versiones.findFirst({
+      orderBy: { id: 'desc' }, // Ordena por ID en orden descendente y toma el primero
+    });
+
+    // Construye la respuesta con los valores obtenidos
+    return {
+      error: false,
+      versionAndroid: version?.android ?? '1.0.0', // Si no hay datos, usa '1.0.0' como valor por defecto
+      versionIos: version?.ios ?? '1.0.0',        // Si no hay datos, usa '1.0.0' como valor por defecto
+      urlAndroid: 'https://play.google.com/store/apps/details?id=maar.tarjeta.simplex',
+      urlIos: 'https://apps.apple.com/pe/app/tarjeta-maar/id1488825292',
+    };
+  }
+}
+
+version.controller.ts:
+import { Controller, Get } from '@nestjs/common';
+import { VersionService } from './version.service';
+
+@Controller('version')
+export class VersionController {
+  constructor(private readonly versionService: VersionService) {}
+
+  @Get()
+  async getVersion() {
+    return this.versionService.getVersion();
+  }
+}
+
+version.module.ts
+import { Module } from '@nestjs/common';
+import { VersionService } from './version.service';
+import { VersionController } from './version.controller';
+import { PrismaService } from 'src/prisma.service';
+
+@Module({
+  controllers: [VersionController],
+  providers: [VersionService, PrismaService],
+})
+export class VersionModule {}
