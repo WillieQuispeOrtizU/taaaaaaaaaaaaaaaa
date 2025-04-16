@@ -1,0 +1,46 @@
+import { ResponseScheme } from 'src/common/interfaces/response.interface';
+
+  private resp: ResponseScheme = {
+    error: false,
+    message: '',
+    statusCode: 200,
+    data: {},
+  };
+Correcto:
+    return this.resp;
+    return 'Confirmación satisfactoria';
+
+
+ERROR:
+          this.resp.statusCode = 400;
+          this.resp.message = 'Verifica la informacion enviada';
+          this.resp.error = true;
+
+Ya confirmada
+          this.resp.statusCode = 409;
+          this.resp.error = true;
+
+
+
+Register.service.ts:
+Validación de unicidad del correo electrónico: Aunque ya verificas la existencia del documento (document), no estás validando la unicidad del correo electrónico (email). Esto es importante, ya que no deberían existir múltiples usuarios con el mismo correo.
+
+TypeScript
+async validateUniqueEmail(email: string) {
+  const user = await this.prisma.user.findFirst({
+    where: {
+      email: email,
+    },
+  });
+  return user ? false : true;
+}
+Luego, agrégalo en registerUser:
+
+TypeScript
+const isEmailUnique = await this.validateUniqueEmail(createRegisterDto.email);
+if (!isEmailUnique) {
+  this.resp.statusCode = 400;
+  this.resp.message = `El correo electrónico ${createRegisterDto.email} ya está registrado.`;
+  this.resp.error = true;
+  return this.resp;
+}

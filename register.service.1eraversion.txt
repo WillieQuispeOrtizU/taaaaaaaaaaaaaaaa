@@ -1,0 +1,185 @@
+/* eslint-disable*/
+ import { Injectable } from '@nestjs/common';
+ import { PrismaService } from 'src/prisma.service';
+ import { CreateUserDto } from 'src/user/dto/create-user.dto';
+ import { CreateRegisterDto } from './dto/create-register.dto';
+ import * as bcrypt from 'bcrypt';
+ import { GlobalFunctions } from 'src/common/functions/global-function';
+ import { ResponseScheme } from 'src/common/interfaces/response.interface';
+ 
+ @Injectable()
+ export class RegisterService {
+   constructor(
+     private readonly globalFunctions: GlobalFunctions,
+     private prisma: PrismaService,
+   ) {}
+   private resp: ResponseScheme = {
+     error: false,
+     message: '',
+     statusCode: 200,
+     data: {},
+   };
+   async validateExistUser(document: string) {
+     let condition = {
+       userId: null,
+       validation: 0,
+     };
+     const user = await this.prisma.user.findFirst({
+       where: {
+         document: document
+       },
+     });
+     if (user && user.deleted_at == null) {
+       condition.userId = user.id;
+       condition.validation = 1;
+       // if (user.deleted_at != null) {
+       //   condition.validation = 2;
+       // }
+     }
+     return condition;
+   }
+ 
+   async registerUser(createRegisterDto: CreateRegisterDto) {
+       try {
+         this.resp.data = {};
+         this.resp.error = false;
+         this.resp.statusCode = 200;
+   
+         let { validation, userId } = await this.validateExistUser(
+           createRegisterDto.document,
+         );
+         console.log('validation', createRegisterDto);
+         if (validation == 1) {
+           this.resp.statusCode = 400;
+           this.resp.message = `Usuario con documento ${createRegisterDto.document} existente`;
+           this.resp.error = true;
+           this.resp.data = {};
+           return this.resp;
+         } else {
+           console.log('entro aca');
+           const dataCreated = await this.prisma.user.create({
+             data: {
+               fullname:createRegisterDto.fullname,
+               document: createRegisterDto.document,
+               password: bcrypt.hashSync(createRegisterDto.password, 10),
+               email: createRegisterDto.email,
+               flagMsg: createRegisterDto.flagMsg,
+               isValidateEmail:createRegisterDto.isValidateEmail,
+               updated_at: null,
+               isActive: createRegisterDto.isActive,
+               isAccessWeb: createRegisterDto.isAccessWeb,
+               roleId: createRegisterDto.roleId,
+             },
+           });
+           if (createRegisterDto.projects.length>0){
+   
+   
+             const obj: any = {
+               usersId: [dataCreated.id],
+               groupsId: createRegisterDto.projects,
+             };
+             await this.assingProjects(obj);
+           }
+   
+           this.resp.message = 'Usuario Creado';
+           this.resp.data = dataCreated;
+         }
+       } catch (error) {
+         console.log(error);
+         this.resp.statusCode = 400;
+         this.resp.message = error;
+         this.resp.data = {};
+       }
+       return this.resp;
+     }
+   
+     async assingProjects(createRegisterDto: any) {
+       try {
+         this.resp.data = {};
+         this.resp.error = false;
+         this.resp.statusCode = 200;
+         const dataToSave: any = [];
+         const { usersId = [], projectsId = [] } = createRegisterDto;
+         console.log('create', createRegisterDto);
+         await Promise.all(
+           usersId.map(async (element) => {
+             const userId = element;
+             const currGroups = await this.prisma.project_user.findMany({
+               where: {
+                 userId: userId,
+                 deleted_at: null,
+               },
+               select: {
+                 id: true,
+                 projectId: true,
+               },
+             });
+   
+             if (currGroups.length > 0) {
+               for (const element of currGroups) {
+                 const currId = element.projectId;
+                 const stayId = projectsId.includes(currId);
+   
+                 if (!stayId) {
+                   // Eliminar
+                   await this.prisma.project_user.update({
+                     where: {
+                       id: element.id,
+                     },
+                     data: {
+                       deleted_at: new Date(),
+                     },
+                   });
+                 }
+               }
+             }
+   
+             for (const subel of projectsId) {
+               const groupUser = await this.prisma.project_user.findFirst({
+                 where: {
+                   projectId: subel,
+                   userId,
+                   deleted_at: null,
+                 },
+               });
+   
+               if (groupUser == null) {
+                 const item: Record<string, any> = {};
+                 item.projectId = subel;
+                 item.userId = userId;
+                 item.updated_at = new Date();
+                 dataToSave.push(item);
+               }
+             }
+           }),
+         );
+         console.log('dataToSave', dataToSave);
+         if (dataToSave.length > 0) {
+           const result = await this.prisma.project_user.createMany({
+             data: dataToSave,
+           });
+         }
+         const projectUserUpdate = await this.prisma.project_user.updateMany({
+           where: {
+             id: {
+               in: usersId,
+             },
+           },
+           data: {
+             updated_at: new Date(),
+           },
+         });
+   
+         this.resp.data = dataToSave;
+         this.resp.message = 'asignacion Exitosa';
+       } catch (error) {
+         console.log(error);
+         this.resp.statusCode = 500;
+         this.resp.error = true;
+         this.resp.message = JSON.stringify(error);
+       }
+   
+       return this.resp;
+     }
+   
+ }
