@@ -48,3 +48,7 @@ agregar description:
             }
           },
 
+
+Ejemplo de como deshabilitar para roles
+                  :disabled="!rolesAllowed.includes(user_role)"
+linea 64 proyectos index.vue
