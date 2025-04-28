@@ -1,0 +1,69 @@
+servicio de listdo: controlador
+RecordController, metodo list
+servicio de vista ( descarga listas que usan combobox)
+controlador backendController
+metodo recordsDigitals
+
+file:resources/assets/backend/js/components/Reports Trabajador
+
+
+riskcontroller
+backendcontroller
+recordcontroller
+web.php
+
+empresa puede tener varios proyectos
+
+record puede tener varios risk
+
+risk 
+id 1 capacitacion
+id 2 herramientas
+
+
+model risk {
+  id         Int       @id @default(autoincrement())
+  name       String    @db.VarChar(180)
+  flag       Int?      @default(0)
+  created_at DateTime  @default(now())
+  updated_at DateTime? @default(now())
+  deleted_at DateTime?
+  record_risk record_risk[]
+}
+
+model record {
+  id               Int       @id @default(autoincrement())
+  user_id          Int       // Relación con el usuario
+  project_id       Int       // Relación con el proyecto
+  category_id      Int       // Relación con la categoría
+  type             String    @db.VarChar(50)
+  worker_fullname  String    @db.VarChar(150)
+  worker_id_number String    @db.VarChar(50)
+  description      String?   @db.Text
+  actions          String?   @db.Text
+  suggestions      String?   @db.Text
+  boss_title       String?   @db.VarChar(100)
+  boss_signature   String?   @db.VarChar(255)
+  boss_fullname    String?   @db.VarChar(150)
+  photo_flag       Int?      @default(0) // Indica si hay fotos asociadas
+  url_front        String?   @db.VarChar(255) // URL de foto frontal
+  url_back         String?   @db.VarChar(255) // URL de foto trasera
+  completed        DateTime? @default(now())
+  created_at       DateTime  @default(now())
+  updated_at       DateTime? @default(now())
+  deleted_at       DateTime?
+  uuid             String    @unique @db.VarChar(36) // Identificador único
+  flag             Int?      @default(0) // Bandera para uso específico
+  record_risk record_risk[]
+}
+
+model record_risk {
+  id        Int     @id @default(autoincrement())
+  recordId  Int
+  record    record @relation(fields: [recordId], references: [id])
+  riskId    Int
+  risk      risk    @relation(fields: [riskId], references: [id])
+  created_at DateTime  @default(now())
+  updated_at DateTime? @default(now())
+  deleted_at DateTime?
+}
