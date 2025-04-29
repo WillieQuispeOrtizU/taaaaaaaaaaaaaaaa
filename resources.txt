@@ -1,0 +1,5 @@
+app\Http\Controllers\BackendController.php
+resources\views\backend_new\records_digitals.blade.php	
+resources\views\backend_new\master.blade.php
+resources\assets\backend\js\components\Reports\RecordDetailModalS.vue
+resources\assets\backend\js\components\Reports\SimulateCard.vue
