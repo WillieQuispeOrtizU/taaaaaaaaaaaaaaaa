@@ -1,0 +1,27 @@
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Radio de la Tierra en kilómetros
+
+  // Convertir grados a radianes
+  const toRadians = (degrees: number) => degrees * (Math.PI / 180);
+
+  const dLat = toRadians(lat2 - lat1);
+  const dLon = toRadians(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c; // Distancia en kilómetros
+}
+
+// Ejemplo de uso:
+const lat1 = -12.046374; // Latitud de Lima, Perú
+const lon1 = -77.042793; // Longitud de Lima, Perú
+const lat2 = -13.163141; // Latitud de Cusco, Perú
+const lon2 = -72.545128; // Longitud de Cusco, Perú
+
+const distance = calculateDistance(lat1, lon1, lat2, lon2);
+console.log(`La distancia es ${distance.toFixed(2)} km.`);

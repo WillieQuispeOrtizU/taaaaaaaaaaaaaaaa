@@ -1,0 +1,61 @@
+Proyectos: 
+Radio(rango que ocupara el proyecto) en mantenedores
+Validacion para comparar ubicacion del proyecto 
+con ubicacion del usuario y que no supere los km
+puestos en el radio de proyecto, en caso de superarla
+la ubicacion puesta sera la del proyecto
+
+Usuarios:
+Un jefe de proyectos(ejemplo proyecto1 y proyecto2) puede crear rol jefe de proyectos
+a otro usuario, pero este usuario no puede estar asignado
+a proyectos fuera del limite del jefe(ejemplo proyecto 1 y proyecto2)
+
+Registros:
+Solo quedara registros digitales, borrar las demas pestañas
+Completar al 100%(registrar,editar,borrar,filtros)
+Vista digital(ojito)
+Vista solo fotos en un carrusel de 2
+Exportar en excel los registros
+Exportar en pdf el digital(formato aun por ver) pero debe avanzarse
+Ver una forma de que pueda registarse riesgos, pero luego si se modifica el nombre,
+no le cambie los nombres a registros ya hechos antes del cambio.
+
+
+
+
+        $categories = Category::select('id','name')
+                            ->get();
+
+Equivalente a 
+  async findAll() {
+    try {
+      const rows = await this.prisma.category.findMany({
+        select: {
+          id: true,
+          name: true,
+        }
+        where: {
+          deleted_at: null,
+        }
+
+
+const now = new Date(); // Fecha y hora actual
+
+// Obtener el inicio del día
+const from = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+
+// Obtener el final del día
+const to = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+console.log(from.toISOString()); // "2025-04-30T00:00:00.000Z"
+console.log(to.toISOString());   // "2025-04-30T23:59:59.000Z"
+
+
+const records = await this.recordRepository.find({
+  where: {
+    createdAt: Between(from, to),
+  },
+});
+
+
+

@@ -1,0 +1,106 @@
+record.service.ts:
+    getEnterprises() {
+        return this.query.executeQuery<EnterpriseAnswer>('get', '/getEnterprises', {});
+    }
+
+    getUserFiles() {
+        return this.query.executeQuery<UserFileAnswer>('post', '/getUserFiles', {});
+    }
+
+    
+    getInitInfo()
+    {
+        return this.query.executeQuery<General>('post','/getInitInfo',{});
+    }
+
+    getGeneralInformation(data: any)
+    {
+        return this.query.executeQuery<OfflineGeneral>('post','/getOfflineInfo',data);
+    }
+
+    saveReport(report: any)
+    {
+        return this.query.executeQuery<Simple>('post', '/saveReport', report);
+    }
+
+    deleteReport(report: any)
+    {
+        return this.query.executeQuery<OfflineGeneral>('post', '/deleteReport', report);
+    }
+
+    sendImage(url_img_front: any, url_img_back: any, project_id: any)
+    {
+        let data = {
+            url_img_front: url_img_front,
+            url_img_back: url_img_back,
+            project_id: project_id
+        }
+
+        return this.query.executeQuery<Simple>('post', '/saveImage', data);
+    }
+
+    sendImageWatcher(url_img_front: any, url_img_back: any, project_id: any)
+    {
+        let data = { 
+            url_img_front: url_img_front, 
+            url_img_back : url_img_back, 
+            project_id : project_id 
+        }
+
+        return this.query.executeQuery<Simple>('post', '/saveImage', data);
+    }
+
+    getDetail(data: any)
+    {
+        return this.query.executeQuery<RecordAnswer>('post', '/reportDetail', data);
+    }
+
+
+user.service.ts:
+    login(userData: any) {
+        return this.qs.executeQuery<UserAnswer>('post', '/login', userData);
+    }
+
+    register(userData: any) {
+        return this.qs.executeQuery<UserAnswerRegister>('post', '/register', userData);
+    }
+    confirm(userData: any) {
+        return this.qs.executeQuery<UserConfirm>('post', '/confirm', userData);
+    }
+    checkUserActivate() {
+        return this.qs.executeQuery<UserAnswer>('get', '/checkUser', {});
+    }
+
+    changePassword(data: any) {
+        return this.qs.executeQuery<Simple>('post', '/changePassword', data);
+    }
+
+    recoverPass(data: any) {
+        return this.qs.executeQuery<Simple>('post', '/recoverPass', data);
+    }
+
+    logout() {
+        return this.qs.executeQuery<Simple>('post', '/logout', {});
+    }
+
+
+corona.service.ts:
+    sendTemperature(data: any) {
+        return this.query.executeQuery<Simple>('post', '/saveExamenTarjeta', data);
+    }
+    sendData(data: any) {
+        return this.query.executeQuery<Simple>('post', '/saveInfo', data);
+    }
+
+    getCardData() {
+        return this.query.executeQuery<CardResponse>('post', '/getCard', {});
+    }
+
+
+version.service.ts:
+    async getVersions()
+    {
+        const api = await this.qs.executeQuery<VersionAnswer>('post', '/getVersion', {}).toPromise();
+
+        return api;
+    }
