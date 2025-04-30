@@ -1,0 +1,26 @@
+SELECT 
+    id,
+    rotable_type_id,
+    rotable_category_id,
+    sap_material_code,
+    sap_material_description,
+    sap_material_detail,
+    sap_material_size,
+    picture,
+    created_at,
+    updated_at,
+    sap_class,
+    sap_manufacturer,
+    sap_serial_number,
+    sap_internal_code,
+    umb,
+    flag_serial,
+    relation_material_id,
+    is_calibrated,
+    location
+FROM 
+    your_table_name
+WHERE 
+    sap_material_description LIKE '%petroleo%'
+ORDER BY 
+    is_calibrated ASC;
