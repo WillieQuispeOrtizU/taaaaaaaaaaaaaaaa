@@ -1,0 +1,462 @@
+<template>
+    <div class="card_simulation">
+        <div class="front_page" v-if="type == 1">
+            <div class="title">
+                <div class="logo">
+                    <figure>
+                        <img :src="url_logo">
+                    </figure>
+                </div>
+                <div class="slogan">
+                    <span>ME ANTICIPO AL RIESGO</span>
+                    <span>(MAAR)</span>
+                </div>
+            </div>
+            <div class="first_information">
+                <div class="info">
+                    <span>Proyecto: </span>
+                    <span>{{ information.project.name }}</span>
+                </div>
+                <div class="info">
+                    <span>Nombre y Apellidos: </span>
+                    <span>{{ information.worker_fullname }}</span>
+                </div>
+                <div class="info">
+                    <span>DNI°: </span>
+                    <span>{{ information.worker_id_number }}</span>
+                </div>
+                <div class="info">
+                    <div class="row">
+                        <div class="col-6">
+                            <span>Fecha: </span>
+                            <span>{{ information.date_info }}</span>
+                        </div>
+                        <div class="col-6">
+                            <span>Area: </span>
+                            <span>{{ information.area }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="second_information">
+                <div class="info">
+                    <div class="row justify-content-center">
+                        <div class="col-auto">
+                            <p-check 
+                                color="primary" 
+                                :checked="information.type == 'Seguro'"
+                                disabled="true"
+                            >
+                                Seguro
+                            </p-check>
+                        </div>
+                        <div class="col-auto">
+                            <p-check 
+                                color="primary" 
+                                :checked="information.type == 'Inseguro'"
+                                disabled="true"
+                            >
+                                Inseguro
+                            </p-check>
+                        </div>
+                    </div>
+                </div>
+                <div class="info">
+                    <div class="row justify-content-center">
+                        <div class="col-auto" v-for="item in categories" :key="item.id">
+                            <p-check 
+                                color="primary" 
+                                :checked="information.category_id == item.id"
+                                disabled="true"
+                            >
+                                {{ item.name }}
+                            </p-check>
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class="info">
+                    <div class="row justify-content-center">
+                        <div class="col-12" v-for="item in risks" :key="item.id">
+                            <p-check 
+                                color="primary"
+                                :checked="checkRiskid(item.id)" 
+                                disabled="true"
+                            >
+                                {{ item.name }}
+                            </p-check>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>          
+        </div>
+        <div class="back_page" v-if="type == 2">
+            <div class="title">
+                <div class="logo">
+                    <figure>
+                        <img :src="url_logo">
+                    </figure>
+                </div>
+                <div class="slogan">
+                    <span>ME ANTICIPO AL RIESGO</span>
+                    <span>(MAAR)</span>
+                </div>
+            </div>
+            <div class="first_information">
+                <div class="info">
+                    <label class="d-block">Descripción de la observación</label>
+                    <p>{{ information.description }}</p>
+                </div>
+                <div class="info">
+                    <label class="d-block">Medidas correctivas tomadas:</label>
+                    <p>{{ information.actions }}</p>
+                </div>
+            </div>
+            <div class="text_description">
+                <p>La Tarjeta MAAR anticipa una situación de riesgo, debe ser llenada sin temor a las consecuencias. No se atribuirá
+                ninguna culpa ni responsabilidad a los trabajadores que señalen de buena fe una situación de riesgo o que detengan un
+                trabajo, aunque dicha acción posteriormente se revelase innecesaria.</p>
+                <p>JUNTOS por el CERO daño.</p>
+            </div>
+            <div class="info mt-4">
+                <div class="row justify-content-center">
+                    <div class="col-auto">
+                        <p-check 
+                            color="primary" 
+                            :checked="information.boss_title == 'Capataz'"
+                            disabled="true"
+                        >
+                            Capataz
+                        </p-check>
+                    </div>
+                    <div class="col-auto">
+                        <p-check 
+                            color="primary" 
+                            :checked="information.boss_title == 'Supervisor'"
+                            disabled="true"
+                        >
+                            Supervisor
+                        </p-check>
+                    </div>
+                </div>
+            </div>
+            <div class="info mt-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="signature">
+                            <figure>
+                                <img :src="information.boss_signature"  v-if="information.boss_signature != ''">
+                            </figure>
+                            <div class="title" style="margin-top: 8px;">
+                                <span>Firma</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="signature">
+                            <label for="">{{ information.boss_fullname }}</label>
+                            <div class="title">
+                                <span>Nombre y apellidos</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="button_container" >               
+                    <a :href="information.url_front" target="_blank" class="btn btn-success" v-if="information.url_front != ''">Foto Frontal</a>                
+                    <a :href="information.url_back" target="_blank" class="btn btn-success" v-if="information.url_back != ''">Foto Trasera</a> 
+            </div>
+            
+        </div>
+    </div>
+</template>
+
+<script>
+
+    import PrettyCheckbox from 'pretty-checkbox-vue';
+    Vue.use(PrettyCheckbox);
+    export default {
+        props: {
+            information: {
+                type: Object,
+                default: function() {
+                    return {};
+                }
+            },
+            type: {
+                type: Number,
+                default: -1
+            },
+            url_logo: {
+                type: String,
+                default: ""
+            },
+            risks: {
+                type: Array,
+                default: function() {
+                    return [];
+                }
+            },
+            categories: {
+                type: Array,
+                default: function() {
+                    return [];
+                }
+            },
+        },
+        data() {
+            return {
+                check: false,
+            };
+        },
+        created() {
+        },
+        mounted() {
+        },
+        methods: {
+            checkRiskid: function(risk_id) {
+                for (let index = 0; index < this.information.risks.length; index++) {
+                    const element = this.information.risks[index];
+                    if(element.id == risk_id)
+                        return true;
+                }
+
+                return false;
+            }
+        }
+    };
+</script>
+
+css////////////////////////////////////////////////////////////////
+<style lang="scss">
+$background: #FFF;
+$color: #000;
+
+.card_simulation {
+  background: $background;
+  margin: 0 auto;
+  width: 400px;
+  min-height: 880px;
+  padding: 1rem;
+
+  &.h-auto {
+    height: auto !important;
+  }
+
+  .pretty input[disabled] ~ * {
+    opacity: 1 !important;
+  }
+
+  .button_container {
+    margin-top: 2rem;
+    text-align: center;
+  }
+
+  .front_page {
+    .title {
+      display: flex;
+
+      .logo {
+        flex: 0 0 auto;
+        margin-right: 1rem;
+
+        figure {
+          margin: 0 auto;
+          width: 90px;
+
+          img {
+            width: 100%;
+          }
+        }
+      }
+
+      .slogan {
+        margin-left: auto;
+
+        span {
+          display: block;
+          font-weight: bolder;
+          text-align: center;
+        }
+      }
+    }
+
+    .first_information {
+      margin-top: 1rem;
+
+      .info {
+        span {
+          color: $color;
+
+          &:first-child {
+            margin-right: 0.25rem;
+          }
+
+          &:last-child {
+            border-bottom: 1px dashed $color;
+          }
+        }
+      }
+    }
+
+    .second_information {
+      .info {
+        &:first-child {
+          margin-top: 0.5rem;
+        }
+
+        &:nth-child(2) {
+          .row {
+            div {
+              padding: 0;
+            }
+          }
+        }
+      }
+    }
+
+    figure {
+      margin: 0 auto;
+      text-align: center;
+
+      img {
+        margin: 0 auto;
+        max-width: 100%;
+      }
+    }
+  }
+
+  .back_page {
+    .title {
+      display: flex;
+
+      .logo {
+        flex: 0 0 auto;
+        margin-right: 1rem;
+
+        figure {
+          margin: 0 auto;
+          width: 90px;
+
+          img {
+            width: 100%;
+          }
+        }
+      }
+
+      .slogan {
+        margin-left: auto;
+
+        span {
+          display: block;
+          font-weight: bolder;
+          text-align: center;
+        }
+      }
+    }
+
+    .first_information {
+      margin-top: 1rem;
+
+      .info {
+        margin-bottom: 0.5rem;
+
+        label {
+          font-weight: bold;
+          margin-bottom: 0;
+        }
+
+        p {
+          margin-bottom: 0;
+          border: 1px solid $color;
+          min-height: 150px;
+        }
+
+        > .row {
+          display: none;
+
+          > div {
+            > .signature {
+              > .title {
+                span {
+                  border-top: 1px solid $color;
+                  display: block;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .info {
+      margin-bottom: 2rem;
+
+      > .row {
+        justify-content: stretch;
+
+        > div {
+          > .signature {
+            figure {
+              height: 110px;
+
+              img {
+                height: 100%;
+                object-fit: contain;
+                object-position: center;
+                width: 100%;
+              }
+            }
+
+            label {
+              align-items: flex-end;
+              display: flex;
+              font-size: 0.8rem;
+              height: 110px;
+              justify-content: center;
+            }
+
+            > .title {
+              border-top: 1px solid $color;
+              text-align: center;
+
+              span {
+                display: block;
+                font-size: 0.8rem;
+                margin: 0 auto;
+                text-align: center;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    figure {
+      margin: 0 auto;
+      text-align: center;
+
+      img {
+        margin: 0 auto;
+        max-width: 100%;
+      }
+    }
+
+    .text_description {
+      width: 100%;
+
+      p {
+        font-size: 0.7rem;
+        font-style: italic;
+        margin-bottom: 0.5rem;
+        text-align: justify;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+}
+</style>
