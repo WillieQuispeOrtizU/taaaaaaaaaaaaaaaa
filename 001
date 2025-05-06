@@ -1,2 +1,43 @@
-id	rotable_type_id	rotable_category_id	sap_material_code	sap_material_description	sap_material_detail	sap_material_size	picture	created_at	updated_at	sap_class	sap_manufacturer	sap_serial_number	sap_internal_code	umb	flag_serial	relation_material_id	is_calibrated	location
-39110	9	1	40000021	PETROLEO DIESEL B-5	NULL	NULL	NULL	20/07/2024 22:25	29/04/2025 13:57	COMBUSTIBLE	NULL			GLN	0	NULL	0	OBRA
+Empresas:
+
+url para imagen
+
+Proyectos:
+
+Radio(rango que ocupara el proyecto) en mantenedores
+
+Validacion para comparar ubicacion del proyecto
+
+con ubicacion del usuario y que no supere los km
+
+puestos en el radio de proyecto, en caso de superarla
+
+la ubicacion puesta sera la del proyecto
+
+Usuarios:
+
+Un jefe de proyectos(ejemplo proyecto1 y proyecto2) puede crear rol jefe de proyectos
+
+a otro usuario, pero este usuario no puede estar asignado
+
+a proyectos fuera del limite del jefe(ejemplo proyecto 1 y proyecto2)
+
+Registros:
+
+Solo quedara registros digitales, borrar las demas pestañas
+
+Completar al 100%(registrar,editar,borrar,filtros)
+
+Vista digital(ojito)
+
+Vista solo fotos en un carrusel de 2
+
+Exportar en excel los registros
+
+Exportar en pdf el digital(formato aun por ver) pero debe avanzarse
+
+Ver una forma de que pueda registarse riesgos, pero luego si se modifica el nombre,
+
+no le cambie los nombres a registros ya hechos antes del cambio.
+
+Mantenedor Riesgos
