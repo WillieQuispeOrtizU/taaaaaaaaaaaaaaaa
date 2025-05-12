@@ -1,8 +1,0 @@
-back
-version -> get del bd-> movil consume y compara
-
-version backend
-getVersion->getVersions
-
-version.controller
-Controller('getVersion')
